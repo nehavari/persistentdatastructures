@@ -2,7 +2,6 @@ from unittest import TestCase
 from lists.stack import Stack
 import unittest
 
-
 class TestStack(TestCase):
 
     def test_head(self):
