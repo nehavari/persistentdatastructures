@@ -78,14 +78,15 @@ class SinglyLinkedList(object):
         '''
 
         if not anotherlist:
-            return self.head
+            return self
 
         newlist = SinglyLinkedList(self.head.getValue())
         pointer = newlist.head
 
-        for h in self.head.getNextNode():
-            pointer.setNextNode(_Node(h.getValue()))
-            pointer = pointer.getNextNode()
+        if self.head.getNextNode():
+            for h in self.head.getNextNode():
+                pointer.setNextNode(_Node(h.getValue()))
+                pointer = pointer.getNextNode()
 
         pointer.setNextNode(anotherlist.head)
 
