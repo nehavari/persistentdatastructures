@@ -1,39 +1,74 @@
-class SinglyLinkedList:
-    class _Node:
-        def __init__(self, value, next):
-            self._value = value
-            self._next = next
+class _NodeIterator(object):
 
-        def __next__(self, node):
-            self._next = node
-
-    def __init__(self, value):
-        self._head = self._Node(value, None)
-
-    def append(self, element):
-        node = self._head
-        while not node.next():
-            node.next(self._Node(element, None))
-
-    def getNextNode(self):
-        return self.__next
+    def __init__(self, node):
+        self._node = node
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        return self.__next
+        if not self._node:
+            raise StopIteration()
+        currentNode = self._node
+        self._node = self._node.getNextNode()
+        return currentNode
 
-def append(list1, list2):
-    for node in list1:
-        print(node)
-    for node in list2:
-        print(node)
 
-#
-# if __name__ == '__main__':
-#     list1 = Node(1).setNextNode(Node(2)).setNextNode(Node(3)).setNextNode(Node(4))
-#     print(list1)
-#     list2 = Node(5).setNextNode(Node(6)).setNextNode(Node(7)).setNextNode(Node(8))
-#     print(list2)
-#     # append(list1, list2)
+class _Node(object):
+
+    def __init__(self, value, next=None):
+        self._value = value
+        self._next = next
+
+    def getValue(self):
+        return self._value
+
+    def getNextNode(self):
+        return self._next
+
+    def setNextNode(self, node):
+        self._next = node
+
+    def __iter__(self):
+        return _NodeIterator(self)
+
+    def __str__(self):
+        return str(self._value)
+
+
+class _SinglyLinkedListIterator(object):
+
+    def __init__(self, list):
+        self.pointer = list
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self.pointer:
+            raise StopIteration()
+
+        currentValue = self.pointer.getValue()
+        self.pointer = self.pointer.getNextNode()
+
+        if isinstance(currentValue, SinglyLinkedList):
+            currentValue = list(currentValue)
+
+        return currentValue
+
+
+class SinglyLinkedList(object):
+
+    def __init__(self, value):
+        self.head = _Node(value)
+
+    def append(self, value):
+        lastNode = None
+
+        for h in self.head:
+            lastNode = h
+
+        lastNode.setNextNode(_Node(value))
+
+    def __iter__(self):
+        return _SinglyLinkedListIterator(self.head)
