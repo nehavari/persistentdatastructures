@@ -70,5 +70,26 @@ class SinglyLinkedList(object):
 
         lastNode.setNextNode(_Node(value))
 
+    def appendlist(self, anotherlist):
+        '''
+        persistent implementation of concatenation of 2 lists
+        :param anotherList:
+        :return: third list which has values of both the list
+        '''
+
+        if not anotherlist:
+            return self.head
+
+        newlist = SinglyLinkedList(self.head.getValue())
+        pointer = newlist.head
+
+        for h in self.head.getNextNode():
+            pointer.setNextNode(_Node(h.getValue()))
+            pointer = pointer.getNextNode()
+
+        pointer.setNextNode(anotherlist.head)
+
+        return newlist
+
     def __iter__(self):
         return _SinglyLinkedListIterator(self.head)
