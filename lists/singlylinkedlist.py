@@ -73,6 +73,8 @@ class SinglyLinkedList(object):
     def appendlist(self, anotherlist):
         '''
         persistent implementation of concatenation of 2 lists
+        Catenating two lists
+        fig 2.5 of the book "purely functional data structures" by Chris Okasaki
         :param anotherList:
         :return: third list which has values of both the list
         '''
@@ -94,3 +96,4 @@ class SinglyLinkedList(object):
 
     def __iter__(self):
         return _SinglyLinkedListIterator(self.head)
+
