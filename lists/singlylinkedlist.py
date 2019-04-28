@@ -1,3 +1,7 @@
+'''
+SinglyLinkedList , _Node, _SinglyLinkedListIterator, _NodeIterator
+'''
+
 class _NodeIterator(object):
 
     def __init__(self, node):
@@ -63,10 +67,11 @@ class _SinglyLinkedListIterator(object):
         currentValue = self.pointer.getValue()
         self.pointer = self.pointer.getNextNode()
 
+        #TODO: this has a bug, its not working properly in suffixes from 2nd element
         if isinstance(currentValue, SinglyLinkedList) or isinstance(currentValue, _Node):
-            acuumulator = []
-            self._handleIterationDepth(currentValue, acuumulator)
-            currentValue = acuumulator
+            accumulator = []
+            self._handleIterationDepth(currentValue, accumulator)
+            currentValue = accumulator
 
         return currentValue
 
@@ -130,6 +135,13 @@ class SinglyLinkedList(object):
         return newlist
 
     def update(self, oldValue, newValue):
+        '''
+        Figure 2.6 ys = update(xs, 2, 7)
+        :param oldValue:
+        :param newValue:
+        :return: new list with an update
+        '''
+
         newList = SinglyLinkedList()
         for node in self.head:
             if node.getValue() == oldValue:
@@ -140,9 +152,15 @@ class SinglyLinkedList(object):
         return newList
 
     def suffixes(self):
+        '''
+        Exercise 2.1 suffixes
+        suffixes[1,2,3,4] = [[1,2,3,4], [2,3,4], [3,4], [4], [5]]
+        :return: a list of all suffixes of self in decreasing order of length
+        '''
+
         newlist = SinglyLinkedList(self)
         for node in self.head.getNextNode():
-            newlist.append(node)
+            newlist.append(SinglyLinkedList(node))
         newlist.append(SinglyLinkedList())
         return newlist
 

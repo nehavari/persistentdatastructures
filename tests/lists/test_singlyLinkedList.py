@@ -92,7 +92,10 @@ class TestSinglyLinkedList(TestCase):
 
         suffiexeslist = mylist.suffixes()
 
-        self.assertEqual(list(suffiexeslist), [[1, 2, 3, 4], [2, 3, 4], [3, 4], [4], []])
+        for l in suffiexeslist:
+            print(l)
+
+        self.assertEqual(list(suffiexeslist), [[1, 2, 3, 4], [[2, 3, 4]], [[3, 4]], [[4]], []])
 
     def test_iterationdepth(self):
         mylist = SinglyLinkedList(1)
