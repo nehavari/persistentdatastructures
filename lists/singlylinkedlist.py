@@ -44,6 +44,18 @@ class _SinglyLinkedListIterator(object):
     def __iter__(self):
         return self
 
+    def _handleIterationDepth(self, value, accumulator):
+        for element in value:
+            if isinstance(element, SinglyLinkedList):
+                self._handleIterationDepth(element, accumulator)
+            elif isinstance(element, _Node):
+                if isinstance(element.getValue(), SinglyLinkedList) or isinstance(element.getValue(), _Node):
+                    self._handleIterationDepth(element.getValue(), accumulator)
+                else:
+                    accumulator.append(element.getValue())
+            else:
+                accumulator.append(element)
+
     def __next__(self):
         if not self.pointer:
             raise StopIteration()
@@ -51,24 +63,47 @@ class _SinglyLinkedListIterator(object):
         currentValue = self.pointer.getValue()
         self.pointer = self.pointer.getNextNode()
 
-        if isinstance(currentValue, SinglyLinkedList):
-            currentValue = list(currentValue)
+        if isinstance(currentValue, SinglyLinkedList) or isinstance(currentValue, _Node):
+            acuumulator = []
+            self._handleIterationDepth(currentValue, acuumulator)
+            currentValue = acuumulator
 
         return currentValue
 
 
 class SinglyLinkedList(object):
 
-    def __init__(self, value):
-        self.head = _Node(value)
+    __slots__ = ['head']
+
+    def __init__(self, value=None):
+        if value:
+            object.__setattr__(self, 'head', _Node(value))
+        else:
+            object.__setattr__(self, 'head', None)
+
+    def __iter__(self):
+        return _SinglyLinkedListIterator(self.head)
+
+    def __setattr__(self, key, value):
+        raise AttributeError('Attribute set to an existing list head not supported')
 
     def append(self, value):
-        lastNode = None
+        if self.head:
+            lastNode = None
+            for h in self.head:
+                lastNode = h
+            lastNode.setNextNode(_Node(value))
+        else:
+            object.__setattr__(self, 'head', _Node(value))
 
-        for h in self.head:
-            lastNode = h
-
-        lastNode.setNextNode(_Node(value))
+    def _appendNode(self, node):
+        if self.head:
+            lastNode = None
+            for h in self.head:
+                lastNode = h
+            lastNode.setNextNode(node)
+        else:
+            object.__setattr__(self, 'head', node)
 
     def appendlist(self, anotherlist):
         '''
@@ -94,6 +129,21 @@ class SinglyLinkedList(object):
 
         return newlist
 
-    def __iter__(self):
-        return _SinglyLinkedListIterator(self.head)
+    def update(self, oldValue, newValue):
+        newList = SinglyLinkedList()
+        for node in self.head:
+            if node.getValue() == oldValue:
+                newList._appendNode(_Node(newValue, node.getNextNode()))
+                break
+            newList.append(node.getValue())
+
+        return newList
+
+    def suffixes(self):
+        newlist = SinglyLinkedList(self)
+        for node in self.head.getNextNode():
+            newlist.append(node)
+        newlist.append(SinglyLinkedList())
+        return newlist
+
 
