@@ -24,6 +24,27 @@ class _Node(object):
         self._value = value
         self._next = next
 
+    def __str__(self):
+        if self._next:
+            return "Node's value is {value} with next populated".format(value=self._value)
+        else:
+            return "Leaf Node's value is {value}".format(value=self._value)
+
+    def __repr__(self):
+        if self._next:
+            return "Node's value is {value} with next populated".format(value=self._value)
+        else:
+            return "Leaf Node's value is {value}".format(value=self._value)
+
+    def __eq__(self, other):
+        if self._value == other.getValue() and self._next == other.getNextNode():
+            return True
+        else:
+            return False
+
+    def __iter__(self):
+        return _NodeIterator(self)
+
     def getValue(self):
         return self._value
 
@@ -32,12 +53,6 @@ class _Node(object):
 
     def setNextNode(self, node):
         self._next = node
-
-    def __iter__(self):
-        return _NodeIterator(self)
-
-    def __str__(self):
-        return str(self._value)
 
 
 class _SinglyLinkedListIterator(object):
@@ -78,37 +93,96 @@ class _SinglyLinkedListIterator(object):
 
 class SinglyLinkedList(object):
 
-    __slots__ = ['head']
+    __slots__ = ['__head']
 
     def __init__(self, value=None):
         if value:
-            object.__setattr__(self, 'head', _Node(value))
+            object.__setattr__(self, '_SinglyLinkedList__head', _Node(value))
         else:
-            object.__setattr__(self, 'head', None)
+            object.__setattr__(self, '_SinglyLinkedList__head', None)
 
     def __iter__(self):
-        return _SinglyLinkedListIterator(self.head)
+        return _SinglyLinkedListIterator(self.__head)
 
     def __setattr__(self, key, value):
         raise AttributeError('Attribute set to an existing list head not supported')
 
-    def append(self, value):
-        if self.head:
-            lastNode = None
-            for h in self.head:
-                lastNode = h
-            lastNode.setNextNode(_Node(value))
+
+    def __eq__(self, other):
+        if len(self) != len(other):
+            return False
+        pointer = self.__head
+        for valueOther in other:
+            if pointer.getValue() != valueOther:
+                return False
+            pointer = pointer.getNextNode()
+        return True
+
+    def __str__(self):
+        args = '['
+        if len(self) == 0:
+            args += ''
+        elif len(self) == 1:
+            args += str(self.__head.getValue())
         else:
-            object.__setattr__(self, 'head', _Node(value))
+            for node in self.__head:
+                if node.getNextNode():
+                    args += str(node.getValue()) + ', '
+                else:
+                    args += str(node.getValue())
+        args += ']'
+        return args
+
+    def __repr__(self):
+        args = '['
+        if len(self) == 0:
+            args += ''
+        elif len(self) == 1:
+            args += str(self.__head.getValue())
+        else:
+            for node in self.__head:
+                if node.getNextNode():
+                    args += str(node.getValue()) + ', '
+                else:
+                    args += str(node.getValue())
+        args += ']'
+        return args
+
+    def __len__(self):
+        len = 0
+        for node in self:
+            len += 1
+        return len
+
+    def _copy(self):
+        newlist = SinglyLinkedList()
+        pointer = None
+        for e in self:
+            if not newlist.__head:
+                object.__setattr__(newlist, '_SinglyLinkedList__head', _Node(e))
+                pointer = newlist.__head
+            else:
+                pointer.setNextNode(_Node(e))
+                pointer = pointer.getNextNode()
+        return newlist, pointer
 
     def _appendNode(self, node):
-        if self.head:
+        if self.__head:
             lastNode = None
-            for h in self.head:
+            for h in self.__head:
                 lastNode = h
             lastNode.setNextNode(node)
         else:
-            object.__setattr__(self, 'head', node)
+            object.__setattr__(self, '_SinglyLinkedList__head', node)
+
+    def append(self, value):
+        if self.__head:
+            newlist, lastpointer = self._copy()
+            lastpointer.setNextNode(_Node(value))
+            return newlist
+        else:
+            object.__setattr__(self, '_SinglyLinkedList__head', _Node(value))
+            return self
 
     def appendlist(self, anotherlist):
         '''
@@ -122,15 +196,15 @@ class SinglyLinkedList(object):
         if not anotherlist:
             return self
 
-        newlist = SinglyLinkedList(self.head.getValue())
-        pointer = newlist.head
+        newlist = SinglyLinkedList(self.__head.getValue())
+        pointer = newlist.__head
 
-        if self.head.getNextNode():
-            for h in self.head.getNextNode():
+        if self.__head.getNextNode():
+            for h in self.__head.getNextNode():
                 pointer.setNextNode(_Node(h.getValue()))
                 pointer = pointer.getNextNode()
 
-        pointer.setNextNode(anotherlist.head)
+        pointer.setNextNode(anotherlist.__head)
 
         return newlist
 
@@ -143,7 +217,7 @@ class SinglyLinkedList(object):
         '''
 
         newList = SinglyLinkedList()
-        for node in self.head:
+        for node in self.__head:
             if node.getValue() == oldValue:
                 newList._appendNode(_Node(newValue, node.getNextNode()))
                 break
@@ -154,14 +228,15 @@ class SinglyLinkedList(object):
     def suffixes(self):
         '''
         Exercise 2.1 suffixes
-        suffixes[1,2,3,4] = [[1,2,3,4], [2,3,4], [3,4], [4], [5]]
+        suffixes[1,2,3,4] = [[1,2,3,4], [2,3,4], [3,4], [4], [5], []]
         :return: a list of all suffixes of self in decreasing order of length
         '''
 
         newlist = SinglyLinkedList(self)
-        for node in self.head.getNextNode():
-            newlist.append(SinglyLinkedList(node))
-        newlist.append(SinglyLinkedList())
+        if self.__head.getNextNode():
+            for node in self.__head.getNextNode():
+                newlist = newlist.append(SinglyLinkedList(node))
+        newlist = newlist.append(SinglyLinkedList())
         return newlist
 
 
