@@ -78,10 +78,8 @@ class TestSinglyLinkedList(TestCase):
 
     def test_suffixes(self):
         mylist = SinglyLinkedList(1).append(2).append(3).append(4)
-
         suffiexeslist = mylist.suffixes()
-
-        self.assertEqual(suffiexeslist, [[1, 2, 3, 4], [[2, 3, 4]], [[3, 4]], [[4]], []])
+        self.assertEqual(suffiexeslist, [[1, 2, 3, 4], [2, 3, 4], [3, 4], [4], []])
 
     def test_iterationdepth(self):
         mylist = SinglyLinkedList(1).append(SinglyLinkedList(2))
@@ -96,6 +94,30 @@ class TestSinglyLinkedList(TestCase):
 
         self.assertEqual(mylist, [1, 2, 3, 4])
         self.assertEqual(newList, [1, 7, 3, 4])
+
+    def test_appendOneElement(self):
+        slist = SinglyLinkedList(1).append(2)
+        self.assertEqual(slist, [1, 2])
+
+    def test_iterateAListOfOneElement(self):
+        slist = SinglyLinkedList(1)
+        for l in slist:
+            self.assertEqual(l, 1)
+
+    def test_iterateAListOfOneList(self):
+        slist = SinglyLinkedList(SinglyLinkedList(1))
+        for l in slist:
+            self.assertEqual(l, [1])
+
+    def test_iterateAListOfOneList1(self):
+        slist = SinglyLinkedList(SinglyLinkedList(1).append(2))
+        for l in slist:
+            self.assertEqual(l, [1, 2])
+
+    def test_iterateAListOfOneList2(self):
+        slist = SinglyLinkedList(SinglyLinkedList(1).append(2)).append(8)
+        self.assertEqual(slist, [[1, 2], 8])
+
 
 
 if __name__ == '__main__':
