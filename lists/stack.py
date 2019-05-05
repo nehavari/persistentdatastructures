@@ -1,3 +1,9 @@
+'''
+This is not a persistent stack. This is meant for using internally for other
+data structure.
+'''
+
+
 class Node:
     def __init__(self, value, nextt=None):
         self.__value = value
@@ -34,7 +40,9 @@ class Stack:
     def pop(self):
         if not self.__head:
             raise Exception('Stack is empty')
-        return self.__head.getValue(), Stack(self.__head.getNextNode())
+        value = self.__head.getValue()
+        self.__head = self.__head.getNextNode()
+        return value
 
     def peek(self):
         if not self.__head:
