@@ -3,7 +3,6 @@ This is not a persistent stack. This is meant for using internally for other
 data structure.
 '''
 
-
 class Node:
     def __init__(self, value, nextt=None):
         self.__value = value
