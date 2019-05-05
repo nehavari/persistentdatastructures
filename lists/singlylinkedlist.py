@@ -86,15 +86,12 @@ class SinglyLinkedList(object):
     def __setattr__(self, key, value):
         raise AttributeError('Attribute set to an existing list head not supported')
 
-
     def __eq__(self, other):
         if len(self) != len(other):
             return False
-        pointer = self.__head
-        for valueOther in other:
-            if pointer.getValue() != valueOther:
+        for valueSelf, valueOther in zip(self, other):
+            if valueSelf != valueOther:
                 return False
-            pointer = pointer.getNextNode()
         return True
 
     def __str__(self):
@@ -209,6 +206,16 @@ class SinglyLinkedList(object):
         '''
         Exercise 2.1 suffixes
         suffixes[1,2,3,4] = [[1,2,3,4], [2,3,4], [3,4], [4], [5], []]
+
+        Point to note here is that this implementation does not do any copy of the
+        nodes of original list. Instead every node in suffixes list is a SinglyLinkedList and
+        head of each of these SinglyLinkedList points to each node of the original list.
+
+        We can do this because SinglyLinkedList is fully persistent thus every update is
+        immutable.
+
+        It is generated in O(n) time and O(n) space.
+
         :return: a list of all suffixes of self in decreasing order of length
         '''
         newlist = SinglyLinkedList(self)
