@@ -1,3 +1,7 @@
+'''
+    A persistent Unbalanced Set implemented using binary search tree
+'''
+
 from lists.stack import Stack
 from copy import copy
 
@@ -37,7 +41,7 @@ class _Node(object):
         self.right = right
 
     def __str__(self):
-        return str(self.value)
+        return str(self.value) + ' ' + object.__str__(self)
 
     def __repr__(self):
         return str(self.value)
@@ -90,17 +94,20 @@ class UnbalancedSet(object):
             length += 1
         return length
 
+    def _value_for_str(self, value):
+        if isinstance(value, str):
+            return "'"+value+"'"
+        return str(value)
+
     def __str__(self):
         args = '['
         if len(self) == 0:
             args += ''
-        elif len(self) == 1:
-            args += str(self.__root.value)
         else:
             for node in self.__root:
-                args += str(node.value) + ', '
+                args += self._value_for_str(node.value) + ', '
 
-        args = args[:-2]
+            args = args[:-2]
 
         args += ']'
 
@@ -112,9 +119,9 @@ class UnbalancedSet(object):
             args += ''
         else:
             for node in self.__root:
-                args += str(node.value) + ', '
+                args += self._value_for_str(node.value) + ', '
 
-        args = args[:-2]
+            args = args[:-2]
 
         args += ']'
 
@@ -131,6 +138,9 @@ class UnbalancedSet(object):
 
     def __iter__(self):
         return _UnbalancedSetInorderIterator(self.__root)
+
+    def __setattr__(self, key, value):
+        raise AttributeError('Mutating root of set not supported')
 
     def is_member(self, value):
         for node in self.__root:
@@ -155,6 +165,13 @@ class UnbalancedSet(object):
                 node.right = _Node(element)
 
     def insert(self, element):
+        '''
+        An insert respecting the immutability of set.
+        Figure 2.8 of the book.
+        :param element:
+        :return: A new unbalanced set which copies all the nodes of orignal set along the search path and
+            share rest of the nodes with the original set.
+        '''
         if not self.__root:
             object.__setattr__(self, '_UnbalancedSet__root', _Node(element))
             return self

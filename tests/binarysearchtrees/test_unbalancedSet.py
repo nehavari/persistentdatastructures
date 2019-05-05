@@ -19,7 +19,6 @@ class TestUnbalancedSet(TestCase):
         set = set.insert(3)
         set = set.insert(6)
         self.assertEqual(set, [3, 4, 5, 6, 8])
-        print(set)
 
     def test_is_member(self):
         set = UnbalancedSet().insert(5).insert(4).insert(8).insert(3).insert(6)
@@ -36,6 +35,15 @@ class TestUnbalancedSet(TestCase):
         self.assertEqual(set1, [2, 10])
         self.assertEqual(set2, [8, 10])
         self.assertEqual(set3, [2, 8, 10])
+
+    def test_insert_for_sharing(self):
+        set = UnbalancedSet('d').insert('b').insert('g').insert('h').insert('f').insert('a').insert('c')
+        self.assertEqual(set, ['a', 'b', 'c', 'd', 'f', 'g', 'h'])
+
+        set1 = set.insert('e')
+        self.assertEqual(set, ['a', 'b', 'c', 'd', 'f', 'g', 'h'])
+
+        self.assertEqual(set1, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
 
 
 if __name__ == '__main__':
