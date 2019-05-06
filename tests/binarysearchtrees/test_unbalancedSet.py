@@ -45,6 +45,11 @@ class TestUnbalancedSet(TestCase):
 
         self.assertEqual(set1, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
 
+    def test_existing_member(self):
+        set = UnbalancedSet(1).insert(1)
+
+        self.assertEqual(set, [1])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -174,9 +174,9 @@ class UnbalancedSet(object):
         '''
         if not self.__root:
             object.__setattr__(self, '_UnbalancedSet__root', _Node(element))
-            return self
-        else:
-            set = UnbalancedSet()
-            object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
-            self._insert(set.__root, element)
-            return set
+        elif not self.is_member(element):
+                set = UnbalancedSet()
+                object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
+                self._insert(set.__root, element)
+                return set
+        return self
