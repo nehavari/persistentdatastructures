@@ -33,21 +33,22 @@ class _NodeInorderIterator(object):
 
 class _Node(object):
 
-    __slots__ = ('left', 'value', 'right')
+    __slots__ = ('left', 'value', 'right', 'height')
 
-    def __init__(self, value, left=None, right=None):
+    def __init__(self, value, height, left=None, right=None):
         self.left = left
         self.value = value
         self.right = right
+        self.height = height
 
     def __str__(self):
-        return str(self.value) + ' ' + object.__str__(self)
+        return str(self.value)
 
     def __repr__(self):
         return str(self.value)
 
     def __copy__(self):
-        return _Node(self.value, left=self.left, right=self.right)
+        return _Node(self.value, left=self.left, right=self.right, height=self.height)
 
     def __iter__(self):
         return _NodeInorderIterator(self)
@@ -84,7 +85,7 @@ class UnbalancedSet(object):
 
     def __init__(self, root_val=None):
         if root_val:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val, height=0))
         else:
             object.__setattr__(self, '_UnbalancedSet__root', None)
 
@@ -148,6 +149,15 @@ class UnbalancedSet(object):
                 return True
         return False
 
+    @staticmethod
+    def assign_height(node):
+        if not node.right or (node.left and abs(node.left.height) > abs(node.right.height)):
+            node.height = (abs(node.left.height) + 1) * -1
+        elif not node.left or (node.right and abs(node.right.height) > abs(node.left.height)):
+            node.height = abs(node.right.height) + 1
+        else:
+            node.height = 0
+
     def _insert(self, node, element):
         if element < node.value:
             if node.left:
@@ -155,14 +165,16 @@ class UnbalancedSet(object):
                 node.left = cnode
                 self._insert(cnode, element)
             else:
-                node.left = _Node(element)
+                node.left = _Node(element, height=0)
+            UnbalancedSet.assign_height(node)
         elif element > node.value:
             if node.right:
                 cnode = copy(node.right)
                 node.right = cnode
                 self._insert(cnode, element)
             else:
-                node.right = _Node(element)
+                node.right = _Node(element, height=0)
+            UnbalancedSet.assign_height(node)
 
     def insert(self, element):
         '''
@@ -173,7 +185,7 @@ class UnbalancedSet(object):
             share rest of the nodes with the original set.
         '''
         if not self.__root:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(element))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, 0))
         elif not self.is_member(element):
                 set = UnbalancedSet()
                 object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))

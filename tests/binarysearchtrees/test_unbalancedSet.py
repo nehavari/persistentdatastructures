@@ -1,5 +1,5 @@
 from unittest import TestCase
-from binarysearchtrees.unbalancedset import UnbalancedSet
+from binarysearchtrees.unbalancedset import UnbalancedSet, _Node
 import unittest
 
 
@@ -49,6 +49,12 @@ class TestUnbalancedSet(TestCase):
         set = UnbalancedSet(1).insert(1)
 
         self.assertEqual(set, [1])
+
+    def test_assign_height(self):
+        set = UnbalancedSet(9).insert(5).insert(1).insert(6).insert(10)
+        set = set.insert(11).insert(13)
+        for node in set._UnbalancedSet__root:
+            print(node, node.height)
 
 
 if __name__ == '__main__':
