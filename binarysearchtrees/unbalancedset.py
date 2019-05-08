@@ -150,13 +150,15 @@ class UnbalancedSet(object):
         return False
 
     @staticmethod
-    def calculate_balance(node):
-        if not node.right or (node.left and abs(node.left.height) > abs(node.right.height)):
-            node.height = (abs(node.left.height) + 1) * -1
-        elif not node.left or (node.right and abs(node.right.height) > abs(node.left.height)):
-            node.height = abs(node.right.height) + 1
-        else:
-            node.height = 0
+    def assign_height(node):
+        if node.left and node.right:
+            return node.left.height + 1 if node.left.height > node.right.height else node.right.height + 1
+        elif not node.right and not node.left:
+            return 1
+        elif not node.right:
+            return node.left.height + 1
+        elif not node.left:
+            return node.right.height + 1
 
     def _insert(self, node, element):
         if element < node.value:
@@ -165,16 +167,16 @@ class UnbalancedSet(object):
                 node.left = cnode
                 self._insert(cnode, element)
             else:
-                node.left = _Node(element, height=0)
-            UnbalancedSet.calculate_balance(node)
+                node.left = _Node(element, height=1)
+            node.height = UnbalancedSet.assign_height(node)
         elif element > node.value:
             if node.right:
                 cnode = copy(node.right)
                 node.right = cnode
                 self._insert(cnode, element)
             else:
-                node.right = _Node(element, height=0)
-            UnbalancedSet.calculate_balance(node)
+                node.right = _Node(element, height=1)
+            node.height = UnbalancedSet.assign_height(node)
 
     def insert(self, element):
         '''
