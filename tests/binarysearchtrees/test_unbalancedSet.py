@@ -99,6 +99,16 @@ class TestUnbalancedSet(TestCase):
             balanceFactors.append(node.height)
         self.assertEqual(balanceFactors, [1, 2, 3, 5, 4, 3, 2, 1])
 
+    def test_preorder_iteration(self):
+        set = UnbalancedSet(55, iterator='preorder').insert(56).insert(57).insert(58).insert(59).insert(51).insert(50)
+        set = set.insert(49)
+        self.assertEqual(set, [55, 51, 50, 49, 56, 57, 58, 59])
+
+    def test2_preorder_iteration(self):
+        set = UnbalancedSet(45, iterator='preorder').insert(44).insert(46).insert(48).insert(47).insert(41).insert(50)
+        set = set.insert(49)
+        self.assertEqual(set, [45, 44, 41, 46, 48, 47, 50, 49])
+
 
 if __name__ == '__main__':
     unittest.main()

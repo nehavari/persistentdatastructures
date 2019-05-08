@@ -6,6 +6,33 @@ from lists.stack import Stack
 from copy import copy
 
 
+class _NodePreorderIterator(object):
+
+    def __init__(self, node):
+        self._node = node
+        self._accumulator = Stack()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._accumulator.isEmpty() and not self._node:
+            raise StopIteration()
+
+        if self._node:
+            if self._node.right:
+                self._accumulator.push(self._node.right)
+            node = self._node
+            self._node = self._node.left
+        else:
+            node = self._accumulator.pop()
+            if node.right:
+                self._accumulator.push(node.right)
+            self._node = node.left
+
+        return node
+
+
 class _NodeInorderIterator(object):
 
     def __init__(self, node):
@@ -17,7 +44,7 @@ class _NodeInorderIterator(object):
 
     def __next__(self):
         if self._accumulator.isEmpty() and not self._node:
-            raise StopIteration
+            raise StopIteration()
 
         if self._node:
             current = self._node
@@ -33,13 +60,14 @@ class _NodeInorderIterator(object):
 
 class _Node(object):
 
-    __slots__ = ('left', 'value', 'right', 'height')
+    __slots__ = ('left', 'value', 'right', 'height', 'iterator')
 
-    def __init__(self, value, height, left=None, right=None):
+    def __init__(self, value, height, left=None, right=None, iterator='inorder'):
         self.left = left
         self.value = value
         self.right = right
         self.height = height
+        self.iterator = iterator
 
     def __str__(self):
         return str(self.value)
@@ -48,10 +76,39 @@ class _Node(object):
         return str(self.value)
 
     def __copy__(self):
-        return _Node(self.value, left=self.left, right=self.right, height=self.height)
+        return _Node(self.value, left=self.left, right=self.right, height=self.height, iterator=self.iterator)
 
     def __iter__(self):
-        return _NodeInorderIterator(self)
+        if self.iterator == 'inorder':
+            return _NodeInorderIterator(self)
+        else:
+            return _NodePreorderIterator(self)
+
+
+class _UnbalancedSetPreorderIterator(object):
+
+    def __init__(self, node):
+        self._node = node
+        self._accumulator = Stack()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._node:
+            if self._node.right:
+                self._accumulator.push(self._node.right)
+            node = self._node
+            self._node = self._node.left
+        else:
+            if self._accumulator.isEmpty() and not self._node:
+                raise StopIteration()
+            node = self._accumulator.pop()
+            if node.right:
+                self._accumulator.push(node.right)
+            self._node = node.left
+
+        return node.value
 
 
 class _UnbalancedSetInorderIterator(object):
@@ -65,7 +122,7 @@ class _UnbalancedSetInorderIterator(object):
 
     def __next__(self):
         if self._accumulator.isEmpty() and not self._node:
-            raise StopIteration
+            raise StopIteration()
 
         if self._node:
             current = self._node
@@ -81,13 +138,14 @@ class _UnbalancedSetInorderIterator(object):
 
 class UnbalancedSet(object):
 
-    __slots__ = ('__root', )
+    __slots__ = ('__root', '_iterator')
 
-    def __init__(self, root_val=None):
+    def __init__(self, root_val=None, iterator='inorder'):
         if root_val:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val, height=0))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val, height=1, iterator=iterator))
         else:
             object.__setattr__(self, '_UnbalancedSet__root', None)
+        self._iterator = iterator
 
     def __len__(self):
         length = 0
@@ -138,10 +196,10 @@ class UnbalancedSet(object):
         return True
 
     def __iter__(self):
-        return _UnbalancedSetInorderIterator(self.__root)
-
-    def __setattr__(self, key, value):
-        raise AttributeError('Mutating root of set not supported')
+        if self._iterator == 'inorder':
+            return _UnbalancedSetInorderIterator(self.__root)
+        else:
+            return _UnbalancedSetPreorderIterator(self.__root)
 
     def is_member(self, value):
         for node in self.__root:
@@ -167,7 +225,7 @@ class UnbalancedSet(object):
                 node.left = cnode
                 self._insert(cnode, element)
             else:
-                node.left = _Node(element, height=1)
+                node.left = _Node(element, height=1, iterator=self._iterator)
             node.height = UnbalancedSet.assign_height(node)
         elif element > node.value:
             if node.right:
@@ -175,7 +233,7 @@ class UnbalancedSet(object):
                 node.right = cnode
                 self._insert(cnode, element)
             else:
-                node.right = _Node(element, height=1)
+                node.right = _Node(element, height=1, iterator=self._iterator)
             node.height = UnbalancedSet.assign_height(node)
 
     def insert(self, element):
@@ -187,10 +245,12 @@ class UnbalancedSet(object):
             share rest of the nodes with the original set.
         '''
         if not self.__root:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, 0))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, height=1, iterator=self._iterator))
         elif not self.is_member(element):
-                set = UnbalancedSet()
+                set = UnbalancedSet(iterator=self._iterator)
                 object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
                 self._insert(set.__root, element)
                 return set
         return self
+
+    # def balancer(self, set):
