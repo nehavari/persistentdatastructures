@@ -266,33 +266,35 @@ class UnbalancedSet(object):
             return right + 1
 
     def _right_rotation(self, node, parent, set):
+        node_left = copy(node.left)
         if not parent:
-            set.__root = copy(node.left)
-            pivot = set.__root
+            set.__root = node_left
         else:
             if parent.right and parent.right == node:
-                parent.right = copy(node.left)
+                parent.right = node_left
             else:
-                parent.left = copy(node.left)
-            pivot = parent
+                parent.left = node_left
 
+        pivot = node_left
         if pivot.right:
+            pivot.right = copy(pivot.right)
             set._insert(pivot.right, _Node(node.value, right=node.right))
         else:
             pivot.right = _Node(node.value, right=node.right)
 
     def _left_rotation(self, node, parent, set):
+        node_right = copy(node.right)
         if not parent:
-            set.__root = copy(node.right)
-            pivot = set.__root
+            set.__root = node_right
         else:
             if parent.right and parent.right == node:
-                parent.right = copy(node.right)
+                parent.right = node_right
             else:
-                parent.left = copy(node.right)
-            pivot = parent
+                parent.left = node_right
 
+        pivot = node_right
         if pivot.left:
+            pivot.left = copy(pivot.left)
             set._insert(pivot.left, _Node(node.value, left=node.left))
         else:
             pivot.left = _Node(node.value, left=node.left)

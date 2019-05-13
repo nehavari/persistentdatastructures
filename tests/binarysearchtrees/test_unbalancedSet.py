@@ -133,26 +133,26 @@ class TestUnbalancedSet(TestCase):
         set = UnbalancedSet(5, iterator='preorder').insert(4).insert(3).insert(3.5).insert(3.6).insert(6)
         balancedSet = set.balancer()
         self.assertEqual(set, [5, 4, 3, 3.5, 3.6, 6])
-        self.assertEqual(balancedSet, [5, 3.5, 3, 3.6, 6, 4])
+        self.assertEqual(balancedSet, [3.6, 3.5, 3, 5, 4, 6])
 
     def test_balancer_left_right_rotation1(self):
         set = UnbalancedSet(11, iterator='preorder').insert(8).insert(13).insert(9).insert(4).insert(1).insert(2)
         set = set.insert(3).insert(12).insert(14)
         balancedSet = set.balancer()
         self.assertEqual(set, [11, 8, 4, 1, 2, 3, 9, 13, 12, 14])
-        self.assertEqual(balancedSet, [11, 8, 2, 1, 3, 9, 4, 13, 12, 14])
+        self.assertEqual(balancedSet, [8, 2, 1, 3, 4, 13, 11, 9, 12, 14])
 
     def test_balancer_left_right_rotation2(self):
         set = UnbalancedSet(55, iterator='preorder').insert(54).insert(53).insert(52).insert(56).insert(57).insert(58)
         balancedSet = set.balancer()
         self.assertEqual(set, [55, 54, 53, 52, 56, 57, 58])
-        self.assertEqual(balancedSet, [55, 53, 52, 56, 54, 57, 58])
+        self.assertEqual(balancedSet, [55, 53, 52, 54, 57, 56, 58])
 
     def test_balancer_left_right_rotation3(self):
         set = UnbalancedSet(55, iterator='preorder').insert(54).insert(53).insert(56).insert(57).insert(58)
         balancedSet = set.balancer()
         self.assertEqual(set, [55, 54, 53, 56, 57, 58])
-        self.assertEqual(balancedSet, [55, 53, 56, 54, 57, 58])
+        self.assertEqual(balancedSet, [55, 54, 53, 57, 56, 58])
 
 
 if __name__ == '__main__':
