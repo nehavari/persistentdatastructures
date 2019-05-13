@@ -60,13 +60,13 @@ class _NodeInorderIterator(object):
 
 class _Node(object):
 
-    __slots__ = ('left', 'value', 'right', 'height', 'iterator')
+    __slots__ = ('left', 'value', 'right', 'parent', 'iterator')
 
-    def __init__(self, value, height, left=None, right=None, iterator='inorder'):
+    def __init__(self, value, parent=None, left=None, right=None, iterator=None):
         self.left = left
         self.value = value
         self.right = right
-        self.height = height
+        self.parent = parent
         self.iterator = iterator
 
     def __str__(self):
@@ -76,7 +76,10 @@ class _Node(object):
         return str(self.value)
 
     def __copy__(self):
-        return _Node(self.value, left=self.left, right=self.right, height=self.height, iterator=self.iterator)
+        ## parent is set to none in new copy , responsibility of actor to attach with a parent
+        return _Node(
+            self.value, left=self.left, right=self.right, iterator=self.iterator, parent=None
+        )
 
     def __iter__(self):
         if self.iterator == 'inorder':
@@ -142,7 +145,7 @@ class UnbalancedSet(object):
 
     def __init__(self, root_val=None, iterator='inorder'):
         if root_val:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val, height=1, iterator=iterator))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(root_val, parent=None, iterator=iterator))
         else:
             object.__setattr__(self, '_UnbalancedSet__root', None)
         self._iterator = iterator
@@ -207,34 +210,23 @@ class UnbalancedSet(object):
                 return True
         return False
 
-    @staticmethod
-    def assign_height(node):
-        if node.left and node.right:
-            return node.left.height + 1 if node.left.height > node.right.height else node.right.height + 1
-        elif not node.right and not node.left:
-            return 1
-        elif not node.right:
-            return node.left.height + 1
-        elif not node.left:
-            return node.right.height + 1
-
-    def _insert(self, node, element):
-        if element < node.value:
+    def _insert(self, node, elementNode):
+        if elementNode.value < node.value:
             if node.left:
                 cnode = copy(node.left)
                 node.left = cnode
-                self._insert(cnode, element)
+                self._insert(cnode, elementNode)
             else:
-                node.left = _Node(element, height=1, iterator=self._iterator)
-            node.height = UnbalancedSet.assign_height(node)
-        elif element > node.value:
+                node.left = elementNode
+                elementNode.parent = node
+        elif elementNode.value > node.value:
             if node.right:
                 cnode = copy(node.right)
                 node.right = cnode
-                self._insert(cnode, element)
+                self._insert(cnode, elementNode)
             else:
-                node.right = _Node(element, height=1, iterator=self._iterator)
-            node.height = UnbalancedSet.assign_height(node)
+                node.right = elementNode
+                elementNode.parent = node
 
     def insert(self, element):
         '''
@@ -245,12 +237,89 @@ class UnbalancedSet(object):
             share rest of the nodes with the original set.
         '''
         if not self.__root:
-            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, height=1, iterator=self._iterator))
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, parent=None, iterator=self._iterator))
         elif not self.is_member(element):
                 set = UnbalancedSet(iterator=self._iterator)
                 object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
-                self._insert(set.__root, element)
+                self._insert(set.__root, _Node(element))
                 return set
         return self
 
-    # def balancer(self, set):
+    def _height(self, node):
+        if not node :
+            return 0
+        left = 0
+        right = 0
+        if node.left:
+            left = self._height(node.left)
+        if node.right:
+            right = self._height(node.right)
+
+        if left > right:
+            return left + 1
+        else:
+            return right + 1
+
+    def _right_rotation(self, node, set):
+        if not node.parent:
+            set.__root = copy(node.left)
+            pivot = set.__root
+        else:
+            node.parent.left = copy(node.left)
+            pivot = node.parent
+
+        if pivot.right:
+            set._insert(pivot.right, _Node(node.value, right=node.right))
+        else:
+            pivot.right = _Node(node.value, right=node.right)
+
+    def _left_rotation(self, node, set):
+        if not node.parent:
+            set.__root = copy(node.right)
+            pivot = set.__root
+        else:
+            node.parent.right = copy(node.right)
+            pivot = node.parent
+
+        if pivot.left:
+            set._insert(pivot.left, _Node(node.value, left=node.left))
+        else:
+            pivot.left = _Node(node.value, left=node.left)
+
+    def _balance(self, root):
+        isUnbalanced = False
+        lastBalanceFactor = 0
+        set = UnbalancedSet(iterator='preorder')
+        object.__setattr__(set, '_UnbalancedSet__root', _Node(
+            root.__root.value,
+            parent=root.__root.parent,
+            left=root.__root.left,
+            right=root.__root.right,
+            iterator='preorder'
+        ))
+        for node in set.__root:
+            balanceFactor = self._height(node.right) - self._height(node.left)
+            if balanceFactor < -1 or balanceFactor > 1:
+                isUnbalanced = True
+            if isUnbalanced and balanceFactor in (1, 0, -1):
+                if lastBalanceFactor < -1:
+                    self._right_rotation(lastNode, set)
+                else:
+                    self._left_rotation(lastNode, set)
+                return True, set
+            c_node = copy(node)
+            if node.parent:
+                if node.parent.left == node:
+                    node.parent.left = c_node
+                else:
+                    node.parent.right = c_node
+            lastNode = c_node
+            lastBalanceFactor = balanceFactor
+        return False, root
+
+    def balancer(self):
+        isUnbalanced = True
+        root = self
+        while isUnbalanced:
+            isUnbalanced, root = self._balance(root)
+        return root
