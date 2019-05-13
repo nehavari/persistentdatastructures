@@ -87,7 +87,7 @@ class _Node(object):
 
     def __eq__(self, other):
         if self.value == other.value:
-            if not self.left and not self.right or self.left and other.left and self.left == other.left:
+            if not self.left and not self.left or self.left and other.left and self.left == other.left:
                 if not self.right and not self.right or self.right and other.right and self.right == other.right:
                     return True
         return False

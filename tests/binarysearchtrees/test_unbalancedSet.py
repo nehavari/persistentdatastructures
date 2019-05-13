@@ -148,5 +148,12 @@ class TestUnbalancedSet(TestCase):
         self.assertEqual(set, [55, 54, 53, 52, 56, 57, 58])
         self.assertEqual(balancedSet, [55, 53, 52, 56, 54, 57, 58])
 
+    def test_balancer_left_right_rotation3(self):
+        set = UnbalancedSet(55, iterator='preorder').insert(54).insert(53).insert(56).insert(57).insert(58)
+        balancedSet = set.balancer()
+        self.assertEqual(set, [55, 54, 53, 56, 57, 58])
+        self.assertEqual(balancedSet, [55, 53, 56, 54, 57, 58])
+
+
 if __name__ == '__main__':
     unittest.main()
