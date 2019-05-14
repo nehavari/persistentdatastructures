@@ -186,7 +186,83 @@ class TestUnbalancedSet(TestCase):
         self.assertEqual(set, [8, 4, 1, 11, 9, 13])
         set = set.bInsert(2)
         set = set.bInsert(3).bInsert(12).bInsert(14)
-        self.assertEqual(set, [8, 2, 1, 4, 3, 11, 9, 13, 12, 14] )
+        self.assertEqual(set, [8, 2, 1, 4, 3, 11, 9, 13, 12, 14])
+
+    def test_self_balancing_delete(self):
+        set = UnbalancedSet(11, iterator='preorder').bInsert(8).bInsert(13).bInsert(9).bInsert(4)
+        self.assertEqual(set.bDelete(8), [11, 9, 4, 13])
+
+    def test_self_balancing_delete1(self):
+        set1 = UnbalancedSet(55, iterator='preorder')
+        set2 = set1.bInsert(56)
+        set3 = set2.bInsert(57).bInsert(54).bInsert(58).bInsert(59).bInsert(53)
+        set4 = set2.bDelete(56)
+        set5 = set3.bDelete(53)
+        self.assertEqual(set1, [55])
+        self.assertEqual(set2, [55, 56])
+        self.assertEqual(set3, [56, 54, 53, 55, 58, 57, 59])
+        self.assertEqual(set4, [55])
+        self.assertEqual(set5, [56, 54, 55, 58, 57, 59])
+
+    def test_self_balancing_delete2(self):
+        set1 = UnbalancedSet(55)
+        set2 = set1.insert(56)
+        set3 = set2.insert(57).insert(54).insert(58).insert(59).insert(53)
+        set4 = set2.bDelete(56)
+        set5 = set3.bDelete(53)
+        self.assertEqual(set1, [55])
+        self.assertEqual(set2, [55, 56])
+        self.assertEqual(set3, [53, 54, 55, 56, 57, 58, 59])
+        self.assertEqual(set4, [55])
+        self.assertEqual(set5, [54, 55, 56, 57, 58, 59])
+
+    def test_balanced_delete3(self):
+        unbalancedSet = UnbalancedSet(5, iterator='preorder').insert(4).insert(3).insert(3.5).insert(3.6).insert(6)
+
+        balancedSet = unbalancedSet.bDelete(3.6)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+
+        balancedSet1 = balancedSet.bDelete(6)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+        self.assertEqual(balancedSet1, [3.5, 3, 4, 5])
+
+        balancedSet2 = balancedSet1.bDelete(3.5)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+        self.assertEqual(balancedSet1, [3.5, 3, 4, 5])
+        self.assertEqual(balancedSet2, [4, 3, 5])
+
+        balancedSet3 = balancedSet2.bDelete(4)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+        self.assertEqual(balancedSet1, [3.5, 3, 4, 5])
+        self.assertEqual(balancedSet2, [4, 3, 5])
+        self.assertEqual(balancedSet3, [3, 5])
+
+        balancedSet4 = balancedSet3.bDelete(3)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+        self.assertEqual(balancedSet1, [3.5, 3, 4, 5])
+        self.assertEqual(balancedSet2, [4, 3, 5])
+        self.assertEqual(balancedSet3, [3, 5])
+        self.assertEqual(balancedSet4, [5])
+
+        balancedSet5 = balancedSet4.bDelete(5)
+        self.assertEqual(unbalancedSet, [5, 4, 3, 3.5, 3.6, 6])
+        self.assertEqual(balancedSet, [5, 3.5, 3, 4, 6])
+        self.assertEqual(balancedSet1, [3.5, 3, 4, 5])
+        self.assertEqual(balancedSet2, [4, 3, 5])
+        self.assertEqual(balancedSet3, [3, 5])
+        self.assertEqual(balancedSet4, [5])
+        self.assertEqual(balancedSet5, [])
+
+    def test_balanced_delete4(self):
+        unbalancedSet = UnbalancedSet(5, iterator='inorder').insert(4).insert(3).insert(3.5).insert(3.6).insert(6)
+        balancedSet = unbalancedSet.bDelete(3.6)
+        self.assertEqual(unbalancedSet, [3, 3.5, 3.6, 4, 5, 6])
+        self.assertEqual(balancedSet, [3, 3.5, 4, 5, 6])
 
 
 if __name__ == '__main__':
