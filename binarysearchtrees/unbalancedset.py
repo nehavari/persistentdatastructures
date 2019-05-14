@@ -4,6 +4,7 @@
 
 from lists.stack import Stack
 from copy import copy
+from binarysearchtrees.utils import height, getBalanceFactor, isBalancedTree
 
 
 class _NodePreorderIterator(object):
@@ -216,12 +217,12 @@ class UnbalancedSet(object):
                 return True
         return False
 
-    def _insert(self, node, elementNode):
+    def _insertNode(self, node, elementNode):
         if elementNode.value < node.value:
             if node.left:
                 cnode = copy(node.left)
                 node.left = cnode
-                self._insert(cnode, elementNode)
+                self._insertNode(cnode, elementNode)
             else:
                 node.left = elementNode
 
@@ -229,7 +230,7 @@ class UnbalancedSet(object):
             if node.right:
                 cnode = copy(node.right)
                 node.right = cnode
-                self._insert(cnode, elementNode)
+                self._insertNode(cnode, elementNode)
             else:
                 node.right = elementNode
 
@@ -246,24 +247,9 @@ class UnbalancedSet(object):
         elif not self.is_member(element):
                 set = UnbalancedSet(iterator=self._iterator)
                 object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
-                self._insert(set.__root, _Node(element))
+                self._insertNode(set.__root, _Node(element))
                 return set
         return self
-
-    def _height(self, node):
-        if not node :
-            return 0
-        left = 0
-        right = 0
-        if node.left:
-            left = self._height(node.left)
-        if node.right:
-            right = self._height(node.right)
-
-        if left > right:
-            return left + 1
-        else:
-            return right + 1
 
     def _right_rotation(self, node, parent, set):
         node_left = copy(node.left)
@@ -278,7 +264,7 @@ class UnbalancedSet(object):
         pivot = node_left
         if pivot.right:
             pivot.right = copy(pivot.right)
-            set._insert(pivot.right, _Node(node.value, right=node.right))
+            set._insertNode(pivot.right, _Node(node.value, right=node.right))
         else:
             pivot.right = _Node(node.value, right=node.right)
 
@@ -295,12 +281,13 @@ class UnbalancedSet(object):
         pivot = node_right
         if pivot.left:
             pivot.left = copy(pivot.left)
-            set._insert(pivot.left, _Node(node.value, left=node.left))
+            set._insertNode(pivot.left, _Node(node.value, left=node.left))
         else:
             pivot.left = _Node(node.value, left=node.left)
 
     def _balance(self, root):
         isUnbalanced = False
+
         # balancer will always produce a new balanced set
         balancedSet = UnbalancedSet(iterator='preorder')
 
@@ -314,7 +301,7 @@ class UnbalancedSet(object):
         node = root.__root
 
         while node:
-            balanceFactor = self._height(node.right) - self._height(node.left)
+            balanceFactor = getBalanceFactor(node)
             if balanceFactor < -1 or balanceFactor > 1:
                 isUnbalanced = True
             if isUnbalanced and balanceFactor in (1, 0, -1):
@@ -322,7 +309,7 @@ class UnbalancedSet(object):
                     self._right_rotation(lastNode, lastParent, balancedSet)
                 else:
                     self._left_rotation(lastNode, lastParent, balancedSet)
-                return True, balancedSet
+                return balancedSet
 
             if not balancedSet.__root:
                 node = copy(node)
@@ -336,6 +323,7 @@ class UnbalancedSet(object):
             if node.left:
                 lnode = copy(node.left)
                 node.left = lnode
+
             # useful for next iteration
             lastNode = node
             lastParent = parent
@@ -350,11 +338,13 @@ class UnbalancedSet(object):
                 parent = element[1]
             else:
                 node = None
-        return False, balancedSet
+
+        return balancedSet
 
     def balancer(self):
-        isUnbalanced = True
+        isBalanced = isBalancedTree(self.__root)
         set = self
-        while isUnbalanced:
-            isUnbalanced, set = self._balance(set)
+        while not isBalanced:
+            set = self._balance(set)
+            isBalanced = isBalancedTree(set.__root)
         return set

@@ -1,5 +1,6 @@
 from unittest import TestCase
 from binarysearchtrees.unbalancedset import UnbalancedSet, _Node
+from binarysearchtrees.utils import height
 import unittest
 
 
@@ -55,14 +56,14 @@ class TestUnbalancedSet(TestCase):
         set = set.insert(11).insert(13)
         balanceFactor = []
         for node in set._UnbalancedSet__root:
-            balanceFactor.append(set._height(node))
+            balanceFactor.append(height(node))
         self.assertEqual(balanceFactor, [1, 2, 1, 4, 3, 2, 1])
 
     def test_calculate_balance_factor_all_right_nodes(self):
         set = UnbalancedSet(55).insert(56).insert(57).insert(58).insert(59)
         balanceFactors = []
         for node in set._UnbalancedSet__root:
-            balanceFactors.append(set._height(node))
+            balanceFactors.append(height(node))
         self.assertEqual(balanceFactors, [5, 4, 3, 2, 1])
 
     def test_calculate_balance_factor_all_left_nodes(self):
@@ -71,7 +72,7 @@ class TestUnbalancedSet(TestCase):
         node_values = []
         for node in set._UnbalancedSet__root:
             node_values.append(node.value)
-            balanceFactors.append(set._height(node))
+            balanceFactors.append(height(node))
         self.assertEqual(balanceFactors, [1, 2, 3, 4, 5])
         self.assertEqual(node_values, [51, 52, 53, 54, 55])
 
@@ -81,7 +82,7 @@ class TestUnbalancedSet(TestCase):
         node_values = []
         for node in set._UnbalancedSet__root:
             node_values.append(node.value)
-            balanceFactors.append(set._height(node))
+            balanceFactors.append(height(node))
         self.assertEqual(balanceFactors, [1, 2, 3, 4, 5, 1])
         self.assertEqual(node_values, [51, 52, 53, 54, 55, 59])
 
@@ -89,15 +90,15 @@ class TestUnbalancedSet(TestCase):
         set = UnbalancedSet(55).insert(56).insert(57).insert(58).insert(59).insert(51)
         balanceFactors = []
         for node in set._UnbalancedSet__root:
-            balanceFactors.append(set._height(node))
+            balanceFactors.append(height(node))
         self.assertEqual(balanceFactors, [1, 5, 4, 3, 2, 1])
 
     def test_calculate_balance_2(self):
         set = UnbalancedSet(55).insert(56).insert(57).insert(58).insert(59).insert(51).insert(50).insert(49)
-        height = []
+        height1 = []
         for node in set._UnbalancedSet__root:
-            height.append(set._height(node))
-        self.assertEqual(height, [1, 2, 3, 5, 4, 3, 2, 1])
+            height1.append(height(node))
+        self.assertEqual(height1, [1, 2, 3, 5, 4, 3, 2, 1])
 
     def test_preorder_iteration(self):
         set = UnbalancedSet(55, iterator='preorder').insert(56).insert(57).insert(58).insert(59).insert(51).insert(50)
@@ -112,10 +113,10 @@ class TestUnbalancedSet(TestCase):
     def test3_preorder_iteration_and_height(self):
         set = UnbalancedSet(30, iterator='preorder').insert(10).insert(20)
         self.assertEqual(set, [30, 10, 20])
-        height = []
+        height1 = []
         for node in set._UnbalancedSet__root:
-            height.append(set._height(node))
-        self.assertEqual(height, [3, 2, 1])
+            height1.append(height(node))
+        self.assertEqual(height1, [3, 2, 1])
 
     def test_balancer_right_rotation(self):
         set = UnbalancedSet(5, iterator='preorder').insert(4).insert(3)
