@@ -348,3 +348,25 @@ class UnbalancedSet(object):
             set = self._balance(set)
             isBalanced = isBalancedTree(set.__root)
         return set
+
+    def bInsert(self, element):
+        '''
+          An insert respecting the immutability, sharing and balance factor of a set.
+          A self balancing insert.
+          :param element:
+          :return: A new unbalanced set which copies all the nodes of orignal set along the search path and
+              share rest of the nodes with the original set.
+        '''
+        if not self.__root:
+            object.__setattr__(self, '_UnbalancedSet__root', _Node(element, iterator=self._iterator))
+        elif not self.is_member(element):
+            set = UnbalancedSet(iterator=self._iterator)
+            object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
+            self._insertNode(set.__root, _Node(element))
+            isBalanced = isBalancedTree(set.__root)
+            while not isBalanced:
+                set = self._balance(set)
+                isBalanced = isBalancedTree(set.__root)
+            return set
+        return self
+
