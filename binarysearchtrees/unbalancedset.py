@@ -371,10 +371,9 @@ class UnbalancedSet(object):
     def bDelete(self, element):
         '''
           A delete respecting the immutability, sharing and balance factor of a set.
-          A self balancing insert.
+          A self balancing delete.
           :param element:
-          :return: A new unbalanced set which copies all the nodes of orignal set along the search path and
-              share rest of the nodes with the original set.
+          :return: A new balanced set without the given element.
         '''
         if self.is_member(element):
             parent = None
@@ -382,11 +381,9 @@ class UnbalancedSet(object):
             node.left = copy(self.__root.left)
             node.right = copy(self.__root.right)
             set = UnbalancedSet(iterator=self._iterator)
-            found = False
+            object.__setattr__(set, '_UnbalancedSet__root', node)
             while node:
                 if node.value == element:
-                    found = True
-                if found:
                     if not parent:
                         if node.left:
                             object.__setattr__(set, '_UnbalancedSet__root', node.left)
@@ -399,13 +396,6 @@ class UnbalancedSet(object):
                                     node.left.right = node.right
                         elif node.right:
                             object.__setattr__(set, '_UnbalancedSet__root', node.right)
-                            if node.left:
-                                if node.right.left:
-                                    cNode = copy(node.right.left)
-                                    node.right.left = cNode
-                                    set._insertNode(node.right.left, node.left)
-                                else:
-                                    node.right.left = node.left
                         else:
                             object.__setattr__(set, '_UnbalancedSet__root', None)  # for set of only one node
                     elif parent.left and parent.left == node:  # check if node if the left child of its parent
@@ -435,9 +425,6 @@ class UnbalancedSet(object):
                         else:
                             parent.right = node.left
                     break
-
-                if not set.__root:
-                    object.__setattr__(set, '_UnbalancedSet__root', node)
 
                 # preparations for next iteration
                 parent = node
