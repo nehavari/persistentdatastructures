@@ -368,6 +368,69 @@ class UnbalancedSet(object):
             return set.balancer()
         return self
 
+    def _deleteElement(self, set, element):
+        parent = None
+        node = set.__root
+        while node:
+            if node.value == element:
+                if not parent:
+                    if node.left:
+                        object.__setattr__(set, '_UnbalancedSet__root', node.left)
+                        if node.right:
+                            if node.left.right:
+                                cNode = copy(node.left.right)
+                                node.left.right = cNode
+                                set._insertNode(node.left.right, node.right)
+                            else:
+                                node.left.right = node.right
+                    elif node.right:
+                        object.__setattr__(set, '_UnbalancedSet__root', node.right)
+                    else:
+                        object.__setattr__(set, '_UnbalancedSet__root', None)  # for set of only one node
+                elif parent.left and parent.left == node:  # check if node if the left child of its parent
+                    if not node.right and not node.left:  # node to be deleted is a leaf node
+                        parent.left = None
+                    elif node.right:
+                        parent.left = node.right
+                        if node.left and node.right.left:
+                            cNode = copy(node.right.left)
+                            node.right.left = cNode
+                            set._insertNode(node.right.left, node.left)
+                        else:
+                            node.right.left = node.left
+                    else:
+                        parent.left = node.left
+                else:  # fall here as node is the right child of its parent
+                    if not node.right and not node.left:  # node to be deleted is a leaf node
+                        parent.right = None
+                    elif node.right:
+                        parent.right = node.right
+                        if node.left and node.right.left:
+                            cNode = copy(node.right.left)
+                            node.right.left = cNode
+                            set._insertNode(node.right.left, node.left)
+                        else:
+                            node.right.left = node.left
+                    else:
+                        parent.right = node.left
+                break
+
+            # preparations for next iteration
+            parent = node
+
+            if element < node.value:
+                node = node.left
+            else:
+                node = node.right
+
+            if node and node.left:
+                lNode = copy(node.left)
+                node.left = lNode
+
+            if node and node.right:
+                rNode = copy(node.right)
+                node.right = rNode
+
     def bDelete(self, element):
         '''
           A delete respecting the immutability, sharing and balance factor of a set.
@@ -376,72 +439,36 @@ class UnbalancedSet(object):
           :return: A new balanced set without the given element.
         '''
         if self.is_member(element):
-            parent = None
             node = copy(self.__root)
             node.left = copy(self.__root.left)
             node.right = copy(self.__root.right)
             set = UnbalancedSet(iterator=self._iterator)
             object.__setattr__(set, '_UnbalancedSet__root', node)
-            while node:
-                if node.value == element:
-                    if not parent:
-                        if node.left:
-                            object.__setattr__(set, '_UnbalancedSet__root', node.left)
-                            if node.right:
-                                if node.left.right:
-                                    cNode = copy(node.left.right)
-                                    node.left.right = cNode
-                                    set._insertNode(node.left.right, node.right)
-                                else:
-                                    node.left.right = node.right
-                        elif node.right:
-                            object.__setattr__(set, '_UnbalancedSet__root', node.right)
-                        else:
-                            object.__setattr__(set, '_UnbalancedSet__root', None)  # for set of only one node
-                    elif parent.left and parent.left == node:  # check if node if the left child of its parent
-                        if not node.right and not node.left:   # node to be deleted is a leaf node
-                            parent.left = None
-                        elif node.right:
-                            parent.left = node.right
-                            if node.left and node.right.left:
-                                cNode = copy(node.right.left)
-                                node.right.left = cNode
-                                set._insertNode(node.right.left, node.left)
-                            else:
-                                node.right.left = node.left
-                        else:
-                            parent.left = node.left
-                    else:  # fall here as node is the right child of its parent
-                        if not node.right and not node.left:    # node to be deleted is a leaf node
-                            parent.right = None
-                        elif node.right:
-                            parent.right = node.right
-                            if node.left and node.right.left:
-                                cNode = copy(node.right.left)
-                                node.right.left = cNode
-                                set._insertNode(node.right.left, node.left)
-                            else:
-                                node.right.left = node.left
-                        else:
-                            parent.right = node.left
-                    break
-
-                # preparations for next iteration
-                parent = node
-
-                if element < node.value:
-                    node = node.left
-                else:
-                    node = node.right
-
-                if node and node.left:
-                    lNode = copy(node.left)
-                    node.left = lNode
-
-                if node and node.right:
-                    rNode = copy(node.right)
-                    node.right = rNode
-
+            self._deleteElement(set, element)
             return set.balancer()
-
         return self
+
+    def union(self, other):
+        if not other:
+            return self
+        unbalanced_set = UnbalancedSet(iterator=self._iterator)
+        object.__setattr__(unbalanced_set, '_UnbalancedSet__root', copy(self.__root))
+        for node in other.__root:
+            if not unbalanced_set.is_member(node.value):
+                self._insertNode(unbalanced_set.__root, _Node(node.value))
+        return unbalanced_set.balancer()
+
+    def difference(self, other):
+        if not other:
+            return self
+        node = copy(self.__root)
+        node.left = copy(self.__root.left)
+        node.right = copy(self.__root.right)
+        unbalanced_set = UnbalancedSet(iterator=self._iterator)
+        object.__setattr__(unbalanced_set, '_UnbalancedSet__root', node)
+        for node in other.__root:
+            if unbalanced_set.is_member(node.value):
+                self._deleteElement(unbalanced_set, node.value)
+        return unbalanced_set.balancer()
+
+

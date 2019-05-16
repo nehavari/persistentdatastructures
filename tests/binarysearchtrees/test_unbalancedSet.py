@@ -264,6 +264,71 @@ class TestUnbalancedSet(TestCase):
         self.assertEqual(unbalancedSet, [3, 3.5, 3.6, 4, 5, 6])
         self.assertEqual(balancedSet, [3, 3.5, 4, 5, 6])
 
+    def test_union(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(3).insert(2).insert(1)
+        balancedSet = set1.union(set2)
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [1, 2, 3])
+        self.assertEqual(balancedSet, [5, 2, 1, 3, 6, 7])
+
+    def test_union1(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = None
+        balancedSet = set1.union(set2)
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, None)
+        self.assertEqual(balancedSet, [5, 6, 7])
+
+    def test_union2(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7).insert(4).insert(2).insert(1)
+        set2 = UnbalancedSet(57, iterator='preorder').insert(36).insert(67).insert(24).insert(72).insert(4)
+        balancedSet = set1.union(set2)
+        self.assertEqual(set1, [5, 4, 2, 1, 6, 7])
+        self.assertEqual(set2,  [57, 36, 24, 4, 67, 72])
+        self.assertEqual(balancedSet,  [6, 2, 1, 4, 5, 57, 24, 7, 36, 67, 72])
+
+    def test_balancer(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7).insert(4).insert(2).insert(1)
+        set1 = set1.insert(57).insert(36).insert(67).insert(24).insert(72).insert(4)
+        set2 = set1.balancer()
+        self.assertEqual(set1, [5, 4, 2, 1, 6, 7, 57, 36, 24, 67, 72])
+        self.assertEqual(set2, [6, 2, 1, 4, 5, 57, 24, 7, 36, 67, 72])
+
+    def test_difference(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(3).insert(2).insert(1)
+        set3 = UnbalancedSet(5)
+        balancedSet = set1.difference(set2)
+        balancedSet1 = set1.difference(set3)
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [1, 2, 3])
+        self.assertEqual(balancedSet, [6, 5, 7])
+        self.assertEqual(balancedSet1, [6, 7])
+
+    def test_difference1(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = None
+        balancedSet = set1.difference(set2)
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, None)
+        self.assertEqual(balancedSet, [5, 6, 7])
+
+    def test_difference2(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(5, iterator='preorder').insert(6)
+        balancedSet = set1.difference(set2)
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [5, 6])
+        self.assertEqual(balancedSet, [7])
+
+    def test_difference3(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7).insert(4).insert(2).insert(1)
+        set2 = UnbalancedSet(57, iterator='preorder').insert(36).insert(67).insert(24).insert(72).insert(4)
+        balancedSet = set1.difference(set2)
+        self.assertEqual(set1, [5, 4, 2, 1, 6, 7])
+        self.assertEqual(set2,  [57, 36, 24, 4, 67, 72])
+        self.assertEqual(balancedSet,  [5, 2, 1, 6, 7])
 
 if __name__ == '__main__':
     unittest.main()
