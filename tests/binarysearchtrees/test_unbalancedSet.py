@@ -330,5 +330,65 @@ class TestUnbalancedSet(TestCase):
         self.assertEqual(set2,  [57, 36, 24, 4, 67, 72])
         self.assertEqual(balancedSet,  [5, 2, 1, 6, 7])
 
+    def test_add(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(3).insert(2).insert(1)
+        balancedSet = set1 + set2
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [1, 2, 3])
+        self.assertEqual(balancedSet, [5, 2, 1, 3, 6, 7])
+
+    def test_add1(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = None
+        balancedSet = set1 + set2
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, None)
+        self.assertEqual(balancedSet, [5, 6, 7])
+
+    def test_add2(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7).insert(4).insert(2).insert(1)
+        set2 = UnbalancedSet(57, iterator='preorder').insert(36).insert(67).insert(24).insert(72).insert(4)
+        balancedSet = set1 - set2
+        self.assertEqual(set1, [5, 4, 2, 1, 6, 7])
+        self.assertEqual(set2, [57, 36, 24, 4, 67, 72])
+        self.assertEqual(balancedSet, [5, 2, 1, 6, 7])
+
+    def test_substract(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(3).insert(2).insert(1)
+        set3 = UnbalancedSet(5)
+        balancedSet = set1 - set2
+        balancedSet1 = set1 - set3
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [1, 2, 3])
+        self.assertEqual(balancedSet, [6, 5, 7])
+        self.assertEqual(balancedSet1, [6, 7])
+
+    def test_substract1(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = None
+        balancedSet = set1 - set2
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, None)
+        self.assertEqual(balancedSet, [5, 6, 7])
+
+    def test_substract2(self):
+        set1 = UnbalancedSet(5, iterator='preorder').insert(6).insert(7)
+        set2 = UnbalancedSet(5, iterator='preorder').insert(6)
+        balancedSet = set1 - set2
+        self.assertEqual(set1, [5, 6, 7])
+        self.assertEqual(set2, [5, 6])
+        self.assertEqual(balancedSet, [7])
+
+    def test_substracts3(self):
+        set1 = UnbalancedSet(5, iterator='inorder').insert(6).insert(7).insert(4).insert(2).insert(1)
+        set2 = UnbalancedSet(57, iterator='preorder').insert(36).insert(67).insert(24).insert(72).insert(4)
+        balancedSet = set1 - set2
+        self.assertEqual(set1, [1, 2, 4, 5, 6, 7])
+        self.assertEqual(set2, [57, 36, 24, 4, 67, 72])
+        self.assertEqual(balancedSet, [1, 2, 5, 6, 7])
+
+
 if __name__ == '__main__':
     unittest.main()

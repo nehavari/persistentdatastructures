@@ -471,4 +471,8 @@ class UnbalancedSet(object):
                 self._deleteElement(unbalanced_set, node.value)
         return unbalanced_set.balancer()
 
+    def __sub__(self, other):
+        return self.difference(other)
 
+    def __add__(self, other):
+        return self.union(other)
