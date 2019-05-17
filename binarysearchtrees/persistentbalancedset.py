@@ -1,5 +1,5 @@
 '''
-    A persistent Unbalanced Set implemented using binary search tree
+    A persistent balanced set implemented using binary search tree
 '''
 
 from lists.stack import Stack
@@ -8,15 +8,15 @@ from binarysearchtrees.utils import getBalanceFactor, isBalancedTree
 from binarysearchtrees.base import Node, BinaryTreeInorderIterator, BinaryTreePreorderIterator
 
 
-class UnbalancedSet(object):
+class PersistentBalancedSet(object):
 
     __slots__ = ('__root', '_iterator')
 
     def __init__(self, root_val=None, iterator='inorder'):
         if root_val:
-            object.__setattr__(self, '_UnbalancedSet__root', Node(root_val, iterator=iterator))
+            object.__setattr__(self, '_PersistentBalancedSet__root', Node(root_val, iterator=iterator))
         else:
-            object.__setattr__(self, '_UnbalancedSet__root', None)
+            object.__setattr__(self, '_PersistentBalancedSet__root', None)
         self._iterator = iterator
 
     def __len__(self):
@@ -98,24 +98,7 @@ class UnbalancedSet(object):
                 return True
         return False
 
-    def insert(self, element):
-        '''
-        An insert respecting the immutability of set.
-        Figure 2.8 of the book.
-        :param element:
-        :return: A new unbalanced set which copies all the nodes of orignal set along the search path and
-            share rest of the nodes with the original set.
-        '''
-        if not self.__root:
-            object.__setattr__(self, '_UnbalancedSet__root', Node(element, iterator=self._iterator))
-        elif not self.isMember(element):
-                set = UnbalancedSet(iterator=self._iterator)
-                object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
-                self._insertNode(set.__root, Node(element, iterator=self._iterator))
-                return set
-        return self
-
-    def _right_rotation(self, node, parent, set):
+    def _rightRotation(self, node, parent, set):
         if not parent:
             set.__root = node.left
         else:
@@ -131,7 +114,7 @@ class UnbalancedSet(object):
         else:
             pivot.right = Node(node.value, right=node.right)
 
-    def _left_rotation(self, node, parent, set):
+    def _leftRotation(self, node, parent, set):
         if not parent:
             set.__root = node.right
         else:
@@ -150,7 +133,7 @@ class UnbalancedSet(object):
     def _balance(self, root):
 
         # balancer will always produce a new balanced set
-        balancedSet = UnbalancedSet(iterator=self._iterator)
+        balancedSet = PersistentBalancedSet(iterator=self._iterator)
         rightStack = Stack()
 
         # last default values for first iteration
@@ -169,14 +152,14 @@ class UnbalancedSet(object):
                 isUnbalanced = True
             if isUnbalanced and balanceFactor in (1, 0, -1):
                 if lastBalanceFactor < -1:
-                    self._right_rotation(lastNode, lastParent, balancedSet)
+                    self._rightRotation(lastNode, lastParent, balancedSet)
                 else:
-                    self._left_rotation(lastNode, lastParent, balancedSet)
+                    self._leftRotation(lastNode, lastParent, balancedSet)
                 return balancedSet
 
             if not balancedSet.__root:
                 node = copy(node)
-                object.__setattr__(balancedSet, '_UnbalancedSet__root', node)
+                object.__setattr__(balancedSet, '_PersistentBalancedSet__root', node)
 
             # WARNING: change order of execution of below section on your own risk.
             if node.right:
@@ -214,7 +197,7 @@ class UnbalancedSet(object):
             isBalanced = isBalancedTree(set.__root)
         return set
 
-    def bInsert(self, element):
+    def insert(self, element):
         '''
           An insert respecting the immutability, sharing and balance factor of a set.
           A self balancing insert.
@@ -223,10 +206,10 @@ class UnbalancedSet(object):
               share rest of the nodes with the original set.
         '''
         if not self.__root:
-            object.__setattr__(self, '_UnbalancedSet__root', Node(element, iterator=self._iterator))
+            object.__setattr__(self, '_PersistentBalancedSet__root', Node(element, iterator=self._iterator))
         elif not self.isMember(element):
-            set = UnbalancedSet(iterator=self._iterator)
-            object.__setattr__(set, '_UnbalancedSet__root', copy(self.__root))
+            set = PersistentBalancedSet(iterator=self._iterator)
+            object.__setattr__(set, '_PersistentBalancedSet__root', copy(self.__root))
             self._insertNode(set.__root, Node(element, iterator=self._iterator))
 
             return set.balancer()
@@ -239,7 +222,7 @@ class UnbalancedSet(object):
             if node.value == element:
                 if not parent:
                     if node.left:
-                        object.__setattr__(set, '_UnbalancedSet__root', node.left)
+                        object.__setattr__(set, '_PersistentBalancedSet__root', node.left)
                         if node.right:
                             if node.left.right:
                                 cNode = copy(node.left.right)
@@ -248,9 +231,9 @@ class UnbalancedSet(object):
                             else:
                                 node.left.right = node.right
                     elif node.right:
-                        object.__setattr__(set, '_UnbalancedSet__root', node.right)
+                        object.__setattr__(set, '_PersistentBalancedSet__root', node.right)
                     else:
-                        object.__setattr__(set, '_UnbalancedSet__root', None)  # for set of only one node
+                        object.__setattr__(set, '_PersistentBalancedSet__root', None)  # for set of only one node
                 elif parent.left and parent.left == node:  # check if node if the left child of its parent
                     if not node.right and not node.left:  # node to be deleted is a leaf node
                         parent.left = None
@@ -295,7 +278,7 @@ class UnbalancedSet(object):
                 rNode = copy(node.right)
                 node.right = rNode
 
-    def bDelete(self, element):
+    def delete(self, element):
         '''
           A delete respecting the immutability, sharing and balance factor of a set.
           A self balancing delete.
@@ -306,8 +289,8 @@ class UnbalancedSet(object):
             node = copy(self.__root)
             node.left = copy(self.__root.left)
             node.right = copy(self.__root.right)
-            set = UnbalancedSet(iterator=self._iterator)
-            object.__setattr__(set, '_UnbalancedSet__root', node)
+            set = PersistentBalancedSet(iterator=self._iterator)
+            object.__setattr__(set, '_PersistentBalancedSet__root', node)
             self._deleteElement(set, element)
             return set.balancer()
         return self
@@ -315,8 +298,8 @@ class UnbalancedSet(object):
     def union(self, other):
         if not other:
             return self
-        unbalanced_set = UnbalancedSet(iterator=self._iterator)
-        object.__setattr__(unbalanced_set, '_UnbalancedSet__root', copy(self.__root))
+        unbalanced_set = PersistentBalancedSet(iterator=self._iterator)
+        object.__setattr__(unbalanced_set, '_PersistentBalancedSet__root', copy(self.__root))
         for node in other.__root:
             if not unbalanced_set.isMember(node.value):
                 self._insertNode(unbalanced_set.__root, Node(node.value))
@@ -328,8 +311,8 @@ class UnbalancedSet(object):
         node = copy(self.__root)
         node.left = copy(self.__root.left)
         node.right = copy(self.__root.right)
-        unbalanced_set = UnbalancedSet(iterator=self._iterator)
-        object.__setattr__(unbalanced_set, '_UnbalancedSet__root', node)
+        unbalanced_set = PersistentBalancedSet(iterator=self._iterator)
+        object.__setattr__(unbalanced_set, '_PersistentBalancedSet__root', node)
         for node in other.__root:
             if unbalanced_set.isMember(node.value):
                 self._deleteElement(unbalanced_set, node.value)

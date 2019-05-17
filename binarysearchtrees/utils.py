@@ -17,9 +17,11 @@ def getBalanceFactor(node):
     return height(node.right) - height(node.left)
 
 def isBalancedTree(root_node):
-    for node in root_node:
-        balanceFactor = getBalanceFactor(node)
-        if balanceFactor not in (-1, 0, 1):
-            return False
+    if root_node:
+        for node in root_node:
+            balanceFactor = getBalanceFactor(node)
+            if balanceFactor not in (-1, 0, 1):
+                return False
 
     return True
+

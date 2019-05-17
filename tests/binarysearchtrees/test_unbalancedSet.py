@@ -1,5 +1,5 @@
 from unittest import TestCase
-from binarysearchtrees.unbalancedset import UnbalancedSet, _Node
+from binarysearchtrees.unbalancedset import UnbalancedSet
 from binarysearchtrees.utils import height
 import unittest
 
@@ -21,10 +21,10 @@ class TestUnbalancedSet(TestCase):
         set = set.insert(6)
         self.assertEqual(set, [3, 4, 5, 6, 8])
 
-    def test_is_member(self):
+    def test_isMember(self):
         set = UnbalancedSet().insert(5).insert(4).insert(8).insert(3).insert(6)
-        self.assertTrue(set.is_member(3))
-        self.assertFalse(set.is_member(10))
+        self.assertTrue(set.isMember(3))
+        self.assertFalse(set.isMember(10))
 
     def test_insert_for_immutability(self):
         set = UnbalancedSet(10)
