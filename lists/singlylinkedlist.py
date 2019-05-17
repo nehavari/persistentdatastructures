@@ -2,6 +2,7 @@
 SinglyLinkedList , _Node, _SinglyLinkedListIterator, _NodeIterator
 '''
 
+
 class _NodeIterator(object):
 
     def __init__(self, node):
@@ -226,5 +227,3 @@ class SinglyLinkedList(object):
                 newlist._appendNode(_Node(nodeList))
         newlist._appendNode(_Node(SinglyLinkedList()))
         return newlist
-
-
